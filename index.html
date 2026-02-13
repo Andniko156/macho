@@ -479,44 +479,88 @@
         });
     }
 
-    // Доход
-    function resolveIncome(activeNum, diceSum, isDouble) {
-        const active = `p${activeNum}`;
-        const opp = activeNum===1 ? 'p2' : 'p1';
-        function getCards(pid) { return gameState[pid].enterprises.map(id=>getCard(id)).filter(c=>c && c.dice.includes(diceSum)); }
-        const redOpp = getCards(opp).filter(c=>c.target==='steal');
-        const greenAll = [...getCards(active).filter(c=>c.target==='any'), ...getCards(opp).filter(c=>c.target==='any')];
-        const blueSelf = getCards(active).filter(c=>c.target==='self' && c.color==='blue');
-        const purpleSelf = getCards(active).filter(c=>c.target==='self' && c.color==='purple');
+   // Полностью замените старую функцию resolveIncome на эту
+function resolveIncome(activeNum, diceSum, isDouble) {
+    const active = `p${activeNum}`;
+    const opp = activeNum === 1 ? 'p2' : 'p1';
+    
+    // Защита от undefined
+    if (!gameState[active] || !gameState[opp]) return;
+    
+    const activeEnt = gameState[active].enterprises || [];
+    const oppEnt = gameState[opp].enterprises || [];
+    
+    function getCards(pid) {
+        const enterprises = pid === active ? activeEnt : oppEnt;
+        return enterprises.map(id => {
+            try {
+                return getCard(id);
+            } catch (e) {
+                return null;
+            }
+        }).filter(c => c && c.dice && c.dice.includes(diceSum));
+    }
+    
+    try {
+        const redOpp = getCards(opp).filter(c => c && c.target === 'steal');
+        const greenAll = [...getCards(active).filter(c => c && c.target === 'any'), ...getCards(opp).filter(c => c && c.target === 'any')];
+        const blueSelf = getCards(active).filter(c => c && c.target === 'self' && c.color === 'blue');
+        const purpleSelf = getCards(active).filter(c => c && c.target === 'self' && c.color === 'purple');
 
         redOpp.forEach(c => {
-            if (gameState[active].coins >= c.income) {
-                gameState[active].coins -= c.income;
-                gameState[opp].coins += c.income;
+            if (c && gameState[active] && gameState[opp]) {
+                if (gameState[active].coins >= c.income) {
+                    gameState[active].coins -= c.income;
+                    gameState[opp].coins += c.income;
+                }
             }
         });
+        
         greenAll.forEach(c => {
-            const owner = gameState[active].enterprises.includes(c.id) ? active : opp;
-            gameState[owner].coins += c.income;
+            if (c) {
+                const owner = gameState[active].enterprises.includes(c.id) ? active : opp;
+                if (gameState[owner]) gameState[owner].coins += c.income;
+            }
         });
-        blueSelf.forEach(c => gameState[active].coins += c.income);
-        purpleSelf.forEach(c => gameState[active].coins += c.income);
-        if (isDouble && gameState[active].landmarks.includes('amusement')) gameState[active].coins += 5;
+        
+        blueSelf.forEach(c => { if (c && gameState[active]) gameState[active].coins += c.income; });
+        purpleSelf.forEach(c => { if (c && gameState[active]) gameState[active].coins += c.income; });
+        
+        if (isDouble && gameState[active] && gameState[active].landmarks.includes('amusement')) {
+            gameState[active].coins += 5;
+        }
+    } catch (e) {
+        console.log("Ошибка в доходе:", e);
     }
-
-    // Бросок
-    function rollDice() {
-        if (myPlayer !== gameState.turn) return;
-        const d1 = Math.floor(Math.random()*6)+1;
-        const d2 = gameState.p1.landmarks.includes('station') ? Math.floor(Math.random()*6)+1 : 0;
-        const sum = d2 ? d1+d2 : d1;
-        gameState.lastRoll = [d1, d2 || 1];
-        resolveIncome(gameState.turn, sum, d1===d2);
-        gameState.turn = gameState.turn === 1 ? 2 : 1;
-        pushState();
-        updateUI();
+}
+   // Замените функцию rollDice
+function rollDice() {
+    if (myPlayer !== gameState.turn) return;
+    
+    const d1 = Math.floor(Math.random() * 6) + 1;
+    let d2 = 0;
+    
+    // Проверяем наличие вокзала
+    const hasStation = gameState[`p${gameState.turn}`] && 
+                      gameState[`p${gameState.turn}`].landmarks && 
+                      gameState[`p${gameState.turn}`].landmarks.includes('station');
+    
+    if (hasStation) {
+        d2 = Math.floor(Math.random() * 6) + 1;
     }
-
+    
+    const sum = d2 ? d1 + d2 : d1;
+    gameState.lastRoll = [d1, d2 || 1];
+    
+    resolveIncome(gameState.turn, sum, d1 === d2);
+    
+    // Смена хода
+    gameState.turn = gameState.turn === 1 ? 2 : 1;
+    
+    // Сохраняем в Firebase
+    pushState();
+    updateUI();
+}
     // Подключение к комнате
     function joinRoom() {
         roomId = roomInput.value.trim();
