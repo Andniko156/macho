@@ -3,31 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>МАЧИ КОРО · Онлайн с другом</title>
-    <!-- Добавляем Firebase SDK -->
+    <title>МАЧИ КОРО · Рабочая версия</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         * {
             box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             margin: 0;
             user-select: none;
-            -webkit-tap-highlight-color: transparent;
         }
         body {
             background: #0b3050;
+            padding: 12px;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 12px;
         }
         .game-wrapper {
-            max-width: 1600px;
+            max-width: 1400px;
             width: 100%;
             background: #1d6390;
-            border-radius: 50px;
+            border-radius: 40px;
             padding: 20px;
             border: 6px solid #8eccef;
         }
@@ -36,226 +34,199 @@
             align-items: center;
             justify-content: space-between;
             background: #0c4060;
-            border-radius: 60px;
-            padding: 15px 25px;
+            border-radius: 50px;
+            padding: 15px 20px;
             border: 4px solid #9fd3ff;
             margin-bottom: 20px;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 10px;
         }
         .dice-area {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             align-items: center;
         }
         .die {
-            width: 70px;
-            height: 70px;
+            width: 60px;
+            height: 60px;
             background: #edf7ff;
-            border-radius: 20px;
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 44px;
+            font-size: 36px;
             font-weight: 800;
-            box-shadow: 0 8px 0 #3c6990;
+            box-shadow: 0 6px 0 #3c6990;
             color: #00263b;
-            border: 3px solid #aad0f5;
         }
-        .die.shaking { animation: shake 0.3s ease; }
-        @keyframes shake { 25% { transform: rotate(10deg); } 75% { transform: rotate(-10deg); } }
         .roll-btn {
             background: #50b0f0;
             border: none;
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 700;
-            padding: 12px 40px;
-            border-radius: 60px;
-            box-shadow: 0 8px 0 #1d66a0;
+            padding: 10px 30px;
+            border-radius: 50px;
+            box-shadow: 0 6px 0 #1d66a0;
             cursor: pointer;
-            border: 4px solid #c0e6ff;
         }
-        .roll-btn:disabled { opacity: 0.4; transform: translateY(4px); pointer-events: none; }
-        .connection-status {
+        .roll-btn:disabled { opacity: 0.4; pointer-events: none; }
+        .room-controls {
+            display: flex;
+            gap: 8px;
+            background: #0b3b50;
+            padding: 8px 15px;
+            border-radius: 40px;
+        }
+        .room-input {
+            background: white;
+            border: none;
+            font-size: 16px;
+            padding: 8px 12px;
+            border-radius: 30px;
+            width: 130px;
+        }
+        .join-btn {
+            background: #3ea0dd;
+            border: none;
+            font-size: 18px;
+            padding: 8px 16px;
+            border-radius: 30px;
+            color: white;
+            cursor: pointer;
+        }
+        .status {
             background: #0b3b50;
             color: white;
-            font-size: 22px;
+            font-size: 18px;
             padding: 8px 20px;
             border-radius: 40px;
-            border: 2px solid #7bc4ff;
         }
         .turn-indicator {
             background: #1873a5;
             color: white;
-            font-size: 28px;
-            font-weight: 700;
-            padding: 10px 30px;
-            border-radius: 60px;
-            border: 3px solid #bbe2ff;
+            font-size: 24px;
+            padding: 8px 20px;
+            border-radius: 40px;
         }
         .main-row {
             display: flex;
             gap: 15px;
-            align-items: stretch;
-            margin-bottom: 20px;
             flex-wrap: wrap;
+            margin-bottom: 20px;
         }
         .player-board {
-            flex: 1 1 300px;
+            flex: 1 1 280px;
             background: #156f9f;
-            border-radius: 45px;
-            padding: 18px;
+            border-radius: 40px;
+            padding: 15px;
             border: 5px solid #9fd3ff;
-            min-width: 280px;
         }
         .player-header {
             display: flex;
             justify-content: space-between;
             background: #043d5c;
             color: white;
-            font-size: 28px;
-            font-weight: 700;
-            padding: 15px 20px;
-            border-radius: 40px;
-            border: 3px solid #b0dcff;
-            margin-bottom: 15px;
+            font-size: 24px;
+            padding: 12px 15px;
+            border-radius: 30px;
+            margin-bottom: 12px;
         }
         .coins {
             background: #fad461;
             color: #024059;
-            padding: 8px 25px;
-            border-radius: 50px;
-            font-size: 30px;
+            padding: 5px 20px;
+            border-radius: 40px;
         }
         .landmarks-wrap {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         .landmark {
             background: #517e9e;
-            border-radius: 30px;
-            padding: 12px 5px;
+            border-radius: 25px;
+            padding: 10px 5px;
             text-align: center;
-            font-size: 18px;
+            font-size: 16px;
             border: 3px solid #b8dfff;
-            opacity: 0.75;
+            opacity: 0.7;
             cursor: pointer;
             color: white;
         }
         .landmark.built {
             opacity: 1;
-            background: linear-gradient(145deg, #f5d884, #f0bc40);
-            border-color: #ffdb7c;
+            background: #f0bc40;
             color: #1b3d4f;
         }
         .player-enterprises {
             background: #0a547a;
-            border-radius: 35px;
-            padding: 15px;
-            min-height: 150px;
+            border-radius: 30px;
+            padding: 12px;
+            min-height: 120px;
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
+            gap: 5px;
         }
-        .mini-card {
-            background: #f2f9ff;
-            border-radius: 20px;
-            padding: 8px 10px;
-            border-left: 10px solid;
-            font-size: 18px;
-            display: inline-flex;
-            gap: 4px;
-        }
-        .mini-card.green { border-left-color: #2e8b57; }
-        .mini-card.blue { border-left-color: #1e6f9f; }
-        .mini-card.red { border-left-color: #c13b3b; }
-        .mini-card.purple { border-left-color: #9b4faf; }
         .market-grid {
-            flex: 2 1 400px;
+            flex: 2 1 350px;
             background: #10658f;
-            border-radius: 50px;
-            padding: 20px;
-            border: 6px solid #a3d6ff;
+            border-radius: 40px;
+            padding: 15px;
+            border: 5px solid #a3d6ff;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
+            gap: 10px;
             aspect-ratio: 1/1;
-            max-width: 550px;
+            max-width: 450px;
         }
         .market-card {
             background: #eaf5ff;
-            border-radius: 25px;
-            padding: 10px 5px;
-            border-left: 10px solid;
+            border-radius: 20px;
+            padding: 8px 3px;
+            border-left: 8px solid;
             display: flex;
             flex-direction: column;
             align-items: center;
-            font-size: 14px;
+            font-size: 12px;
             text-align: center;
         }
         .market-card.green { border-left-color: #2e8b57; }
         .market-card.blue { border-left-color: #1e81d0; }
-        .card-icon { font-size: 30px; }
-        .card-dice { background: #166397; color: white; padding: 3px 8px; border-radius: 20px; font-size: 16px; margin: 4px 0; }
-        .card-cost { background: #0b3f5c; color: white; padding: 3px 10px; border-radius: 20px; }
         .buy-btn-market {
             background: #2f8f74;
             border: none;
             color: white;
-            font-size: 16px;
-            padding: 6px 0;
-            border-radius: 30px;
+            font-size: 14px;
+            padding: 4px 0;
+            border-radius: 20px;
             width: 100%;
-            margin-top: 5px;
+            margin-top: 4px;
         }
-        .buy-btn-market:disabled { opacity: 0.3; }
         .log-panel {
             background: #094368;
-            border-radius: 60px;
-            padding: 15px 25px;
+            border-radius: 50px;
+            padding: 12px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border: 5px solid #91cbff;
         }
         .log-text {
             background: #032b40;
             color: #d4f0ff;
-            font-size: 22px;
-            padding: 12px 30px;
-            border-radius: 50px;
+            font-size: 18px;
+            padding: 10px 25px;
+            border-radius: 40px;
             flex: 1;
         }
-        .room-controls {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            background: #0b3b50;
-            padding: 8px 15px;
-            border-radius: 50px;
-        }
-        .room-input {
-            background: white;
-            border: none;
-            font-size: 18px;
-            padding: 8px 12px;
-            border-radius: 30px;
-            width: 150px;
-        }
-        .join-btn {
-            background: #3ea0dd;
-            border: none;
-            font-size: 20px;
-            padding: 8px 16px;
-            border-radius: 40px;
+        .reset-btn {
+            background: #d6704a;
             color: white;
+            font-size: 20px;
+            padding: 8px 30px;
+            border-radius: 40px;
+            border: none;
             cursor: pointer;
-        }
-        @media (max-width: 700px) {
-            .market-grid { gap: 8px; padding: 12px; }
-            .top-panel { flex-direction: column; }
         }
     </style>
 </head>
@@ -265,26 +236,26 @@
         <div class="dice-area">
             <div class="die" id="die1">⚀</div>
             <div class="die" id="die2">⚀</div>
-            <div class="die" style="width: auto; padding:0 20px;" id="diceSum">2</div>
+            <div class="die" id="diceSum" style="width: auto; padding:0 15px;">2</div>
         </div>
-        <button class="roll-btn" id="rollBtn">🎲 БРОСИТЬ</button>
+        <button class="roll-btn" id="rollBtn" disabled>🎲 БРОСИТЬ</button>
         <div class="room-controls">
-            <input type="text" class="room-input" id="roomInput" placeholder="комната" value="machi123">
+            <input class="room-input" id="roomInput" value="game123" placeholder="комната">
             <button class="join-btn" id="joinBtn">🔗 ВОЙТИ</button>
         </div>
-        <div class="connection-status" id="status">Не в сети</div>
+        <div class="status" id="status">Не в сети</div>
         <div class="turn-indicator" id="turnDisplay">ХОД 1</div>
     </div>
 
     <div class="main-row">
         <div class="player-board">
-            <div class="player-header"><span>👤 ИГРОК 1</span><span class="coins" id="p1Coins">3 🪙</span></div>
+            <div class="player-header"><span>👤 ИГРОК 1</span><span class="coins" id="p1Coins">3🪙</span></div>
             <div class="landmarks-wrap" id="p1Landmarks"></div>
             <div class="player-enterprises" id="p1Enterprises"></div>
         </div>
         <div class="market-grid" id="marketGrid"></div>
         <div class="player-board">
-            <div class="player-header"><span>👤 ИГРОК 2</span><span class="coins" id="p2Coins">3 🪙</span></div>
+            <div class="player-header"><span>👤 ИГРОК 2</span><span class="coins" id="p2Coins">3🪙</span></div>
             <div class="landmarks-wrap" id="p2Landmarks"></div>
             <div class="player-enterprises" id="p2Enterprises"></div>
         </div>
@@ -292,12 +263,12 @@
 
     <div class="log-panel">
         <div class="log-text" id="gameMessage">🎯 Введите комнату и нажмите ВОЙТИ</div>
-        <button class="join-btn" id="resetGame" style="background:#d6704a;">⟲ СБРОС</button>
+        <button class="reset-btn" id="resetGame">⟲ СБРОС</button>
     </div>
 </div>
 
 <script>
-    // ⚠️ ВАЖНО: Замените эти данные на свои из Firebase Console
+    // ⚠️ ВСТАВЬТЕ СВОИ КЛЮЧИ FIREBASE ЗДЕСЬ
     const firebaseConfig = {
   apiKey: "AIzaSyBd3A6Wz7NTCfj5bvAbARR2Jw4P5zE4hng",
   authDomain: "machi-d8f62.firebaseapp.com",
@@ -313,43 +284,41 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
+    // Проверка соединения
+    const connectedRef = firebase.database().ref(".info/connected");
+    connectedRef.on("value", (snap) => {
+        if (snap.val() === true) {
+            document.getElementById('status').textContent = '🟢 В сети';
+        } else {
+            document.getElementById('status').textContent = '🔴 Офлайн';
+        }
+    });
+
     // ---------- КАРТЫ ----------
     const ENTERPRISES = [
         { id: 'wheat', name: 'Пшеница', icon: '🌾', dice: [1], cost: 1, income: 1, color: 'green', target: 'any' },
         { id: 'ranch', name: 'Ранчо', icon: '🐄', dice: [2], cost: 1, income: 1, color: 'green', target: 'any' },
-        { id: 'forest', name: 'Лес', icon: '🌲', dice: [5], cost: 3, income: 1, color: 'green', target: 'any' },
-        { id: 'bakery', name: 'Пекарня', icon: '🍞', dice: [2,3], cost: 1, income: 1, color: 'blue', target: 'self' },
-        { id: 'convenience', name: 'Маркет', icon: '🏪', dice: [4], cost: 2, income: 2, color: 'blue', target: 'self' },
-        { id: 'cafe', name: 'Кафе', icon: '☕', dice: [3], cost: 2, income: 1, color: 'red', target: 'steal' },
-        { id: 'familyRest', name: 'Ресторан', icon: '🍝', dice: [3,4], cost: 3, income: 2, color: 'red', target: 'steal' },
-        { id: 'stadium', name: 'Стадион', icon: '🏟️', dice: [6], cost: 6, income: 2, color: 'purple', target: 'self' },
-        { id: 'tvstation', name: 'ТВ-станция', icon: '📺', dice: [6], cost: 7, income: 3, color: 'purple', target: 'self' }
+        { id: 'bakery', name: 'Пекарня', icon: '🍞', dice: [2,3], cost: 1, income: 1, color: 'blue', target: 'self' }
     ];
 
     const LANDMARKS = [
         { id: 'station', name: 'Вокзал', icon: '🚉', cost: 4 },
-        { id: 'mall', name: 'ТЦ', icon: '🏬', cost: 10 },
-        { id: 'amusement', name: 'Парк', icon: '🎡', cost: 16 },
-        { id: 'tvTower', name: 'Радиовышка', icon: '📻', cost: 22 }
+        { id: 'mall', name: 'ТЦ', icon: '🏬', cost: 10 }
     ];
 
-    // Состояние игры
-    let gameState = {
-        p1: { coins: 3, enterprises: ['wheat','bakery'], landmarks: [] },
-        p2: { coins: 3, enterprises: ['wheat','bakery'], landmarks: [] },
+    // Начальное состояние с защитой от undefined
+    const defaultState = {
+        p1: { coins: 3, enterprises: ['wheat', 'bakery'], landmarks: [] },
+        p2: { coins: 3, enterprises: ['wheat', 'bakery'], landmarks: [] },
         turn: 1,
-        diceCount: 1,
-        lastRoll: [1,1],
+        lastRoll: [1, 1],
         timestamp: Date.now()
     };
 
-    let marketSupply = {};
-    ENTERPRISES.forEach(c => marketSupply[c.id] = 6);
-
-    // Игрок (устанавливается при входе в комнату)
-    let myPlayer = null; // 1 или 2
-    let roomId = 'machi123';
+    let gameState = JSON.parse(JSON.stringify(defaultState)); // Глубокая копия
+    let myPlayer = null;
     let roomRef = null;
+    let marketSupply = { wheat: 6, ranch: 6, bakery: 6 };
 
     // DOM элементы
     const die1 = document.getElementById('die1');
@@ -358,7 +327,6 @@
     const rollBtn = document.getElementById('rollBtn');
     const turnDisplay = document.getElementById('turnDisplay');
     const gameMessage = document.getElementById('gameMessage');
-    const statusEl = document.getElementById('status');
     const joinBtn = document.getElementById('joinBtn');
     const roomInput = document.getElementById('roomInput');
     const resetBtn = document.getElementById('resetGame');
@@ -370,252 +338,251 @@
     const p2EntDiv = document.getElementById('p2Enterprises');
     const marketDiv = document.getElementById('marketGrid');
 
-    // Вспомогательные функции
-    function getCard(id) { return ENTERPRISES.find(c => c.id === id); }
+    function getCard(id) {
+        return ENTERPRISES.find(c => c.id === id) || null;
+    }
 
-    function setMessage(msg) { gameMessage.textContent = '📣 ' + msg; }
+    function setMessage(msg) {
+        gameMessage.textContent = '📣 ' + msg;
+    }
 
-    // Сохранение состояния в Firebase
+    // Сохранение в Firebase
     function pushState() {
         if (roomRef) {
             gameState.timestamp = Date.now();
-            roomRef.set(gameState);
+            roomRef.set(gameState).catch(e => console.log('Ошибка записи:', e));
         }
     }
 
-    // Отрисовка интерфейса из gameState
+    // Безопасная отрисовка
     function updateUI() {
-        p1Coins.textContent = gameState.p1.coins + ' 🪙';
-        p2Coins.textContent = gameState.p2.coins + ' 🪙';
+        if (!gameState) return;
         
-        // Отрисовка достопримечательностей
-        [ {pid: 'p1', div: p1LandmarksDiv}, {pid: 'p2', div: p2LandmarksDiv} ].forEach(p => {
-            let html = '';
-            LANDMARKS.forEach(lm => {
-                const built = gameState[p.pid].landmarks.includes(lm.id) ? 'built' : '';
-                html += `<div class="landmark ${built}" data-landmark="${lm.id}" data-player="${p.pid}">${lm.icon} ${lm.name}<br>${lm.cost}🪙</div>`;
-            });
-            p.div.innerHTML = html;
-        });
+        // Защита от undefined
+        const p1 = gameState.p1 || { coins: 0, enterprises: [], landmarks: [] };
+        const p2 = gameState.p2 || { coins: 0, enterprises: [], landmarks: [] };
+        
+        p1Coins.textContent = (p1.coins || 0) + '🪙';
+        p2Coins.textContent = (p2.coins || 0) + '🪙';
 
-        // Отрисовка предприятий игроков
-        [ {pid: 'p1', div: p1EntDiv}, {pid: 'p2', div: p2EntDiv} ].forEach(p => {
-            const cnt = {};
-            gameState[p.pid].enterprises.forEach(id => cnt[id] = (cnt[id]||0)+1);
-            let html = '';
-            ENTERPRISES.forEach(c => {
-                for(let i=0; i<(cnt[c.id]||0); i++) {
-                    html += `<div class="mini-card ${c.color}"><span>${c.icon}</span> ${c.dice.join(',')}</div>`;
-                }
-            });
-            p.div.innerHTML = html || '🃏';
+        // Отрисовка достопримечательностей для Игрока 1
+        let html1 = '';
+        LANDMARKS.forEach(lm => {
+            const built = p1.landmarks && p1.landmarks.includes(lm.id) ? 'built' : '';
+            html1 += `<div class="landmark ${built}" data-landmark="${lm.id}" data-player="p1">${lm.icon} ${lm.name}<br>${lm.cost}🪙</div>`;
         });
+        p1LandmarksDiv.innerHTML = html1;
+
+        // Отрисовка достопримечательностей для Игрока 2
+        let html2 = '';
+        LANDMARKS.forEach(lm => {
+            const built = p2.landmarks && p2.landmarks.includes(lm.id) ? 'built' : '';
+            html2 += `<div class="landmark ${built}" data-landmark="${lm.id}" data-player="p2">${lm.icon} ${lm.name}<br>${lm.cost}🪙</div>`;
+        });
+        p2LandmarksDiv.innerHTML = html2;
+
+        // Отрисовка предприятий Игрока 1
+        let ent1 = '';
+        (p1.enterprises || []).forEach(id => {
+            const card = getCard(id);
+            if (card) {
+                ent1 += `<div class="mini-card ${card.color}">${card.icon} ${card.dice.join(',')}</div>`;
+            }
+        });
+        p1EntDiv.innerHTML = ent1 || '🃏';
+
+        // Отрисовка предприятий Игрока 2
+        let ent2 = '';
+        (p2.enterprises || []).forEach(id => {
+            const card = getCard(id);
+            if (card) {
+                ent2 += `<div class="mini-card ${card.color}">${card.icon} ${card.dice.join(',')}</div>`;
+            }
+        });
+        p2EntDiv.innerHTML = ent2 || '🃏';
 
         // Отрисовка рынка
         let marketHtml = '';
         ENTERPRISES.forEach(card => {
-            const p1c = gameState.p1.enterprises.filter(id=>id===card.id).length;
-            const p2c = gameState.p2.enterprises.filter(id=>id===card.id).length;
+            const p1c = (p1.enterprises || []).filter(id => id === card.id).length;
+            const p2c = (p2.enterprises || []).filter(id => id === card.id).length;
             const available = marketSupply[card.id] > 0;
-            const canBuy = (myPlayer === gameState.turn) && gameState[`p${gameState.turn}`].coins >= card.cost && available;
+            const canBuy = myPlayer === gameState.turn && 
+                          (gameState[`p${gameState.turn}`]?.coins || 0) >= card.cost && 
+                          available;
+            
             marketHtml += `<div class="market-card ${card.color}">
-                <span class="card-icon">${card.icon}</span>
-                <span>${card.name}</span>
-                <div class="card-dice">${card.dice.join(',')}</div>
-                <div class="card-cost">${card.cost}🪙</div>
-                <div>🧑${p1c} 🤖${p2c}</div>
+                <span>${card.icon}</span>
+                <div>${card.dice.join(',')}</div>
+                <div>${card.cost}🪙</div>
+                <div>${p1c}/${p2c}</div>
                 <button class="buy-btn-market" data-card="${card.id}" ${canBuy ? '' : 'disabled'}>купить</button>
             </div>`;
         });
         marketDiv.innerHTML = marketHtml;
 
-        // Обновление кубиков
-        die1.textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][gameState.lastRoll[0]-1] || '⚀';
-        die2.textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][gameState.lastRoll[1]-1] || '⚀';
-        diceSumSpan.textContent = gameState.lastRoll[0] + gameState.lastRoll[1];
-        turnDisplay.textContent = `ХОД ${gameState.turn}`;
+        // Кубики
+        if (gameState.lastRoll) {
+            die1.textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][(gameState.lastRoll[0] || 1) - 1];
+            die2.textContent = ['⚀','⚁','⚂','⚃','⚄','⚅'][(gameState.lastRoll[1] || 1) - 1];
+            diceSumSpan.textContent = (gameState.lastRoll[0] || 1) + (gameState.lastRoll[1] || 1);
+        }
+        
+        turnDisplay.textContent = `ХОД ${gameState.turn || 1}`;
+        rollBtn.disabled = (myPlayer !== gameState.turn);
 
-        // Блокировка кнопки броска
-        if (myPlayer !== gameState.turn) rollBtn.disabled = true;
-        else rollBtn.disabled = false;
+        // Добавляем обработчики
+        attachHandlers();
     }
 
-    // Обработчики событий (покупка, постройка)
+    // Обработчики кликов
     function attachHandlers() {
         document.querySelectorAll('.landmark').forEach(el => {
-            el.addEventListener('click', () => {
-                if (myPlayer !== gameState.turn) { setMessage('Сейчас не ваш ход'); return; }
+            el.onclick = () => {
+                if (myPlayer !== gameState.turn) {
+                    setMessage('Сейчас не ваш ход');
+                    return;
+                }
                 const pid = el.dataset.player;
                 if (pid !== `p${gameState.turn}`) return;
+                
                 const lid = el.dataset.landmark;
                 const player = gameState[pid];
-                if (player.landmarks.includes(lid)) return;
+                if (!player) return;
+                
+                if (player.landmarks && player.landmarks.includes(lid)) return;
+                
                 const lm = LANDMARKS.find(l => l.id === lid);
-                if (player.coins < lm.cost) { setMessage('Не хватает монет'); return; }
+                if (!lm) return;
+                
+                if (player.coins < lm.cost) {
+                    setMessage('Не хватает монет');
+                    return;
+                }
+                
                 player.coins -= lm.cost;
+                if (!player.landmarks) player.landmarks = [];
                 player.landmarks.push(lid);
                 setMessage(`Построено: ${lm.name}`);
                 pushState();
                 updateUI();
-            });
+            };
         });
 
         document.querySelectorAll('.buy-btn-market').forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (myPlayer !== gameState.turn) { setMessage('Сейчас не ваш ход'); return; }
+            btn.onclick = () => {
+                if (myPlayer !== gameState.turn) {
+                    setMessage('Сейчас не ваш ход');
+                    return;
+                }
+                
                 const cid = btn.dataset.card;
                 const card = getCard(cid);
                 if (!card) return;
+                
                 const player = gameState[`p${gameState.turn}`];
-                if (player.coins < card.cost) return;
-                if (marketSupply[cid] <= 0) { setMessage('Нет в наличии'); return; }
+                if (!player) return;
+                
+                if (player.coins < card.cost) {
+                    setMessage('Не хватает монет');
+                    return;
+                }
+                
+                if (marketSupply[cid] <= 0) {
+                    setMessage('Нет в наличии');
+                    return;
+                }
+                
                 player.coins -= card.cost;
+                if (!player.enterprises) player.enterprises = [];
                 player.enterprises.push(cid);
                 marketSupply[cid]--;
                 setMessage(`Куплено: ${card.name}`);
                 pushState();
                 updateUI();
-            });
+            };
         });
     }
 
-   // Полностью замените старую функцию resolveIncome на эту
-function resolveIncome(activeNum, diceSum, isDouble) {
-    const active = `p${activeNum}`;
-    const opp = activeNum === 1 ? 'p2' : 'p1';
-    
-    // Защита от undefined
-    if (!gameState[active] || !gameState[opp]) return;
-    
-    const activeEnt = gameState[active].enterprises || [];
-    const oppEnt = gameState[opp].enterprises || [];
-    
-    function getCards(pid) {
-        const enterprises = pid === active ? activeEnt : oppEnt;
-        return enterprises.map(id => {
-            try {
-                return getCard(id);
-            } catch (e) {
-                return null;
-            }
-        }).filter(c => c && c.dice && c.dice.includes(diceSum));
+    // Доход (упрощённый)
+    function resolveIncome(activeNum, diceSum) {
+        const active = `p${activeNum}`;
+        const player = gameState[active];
+        if (!player) return;
+        
+        // Просто даём 1 монету за ход для теста
+        player.coins = (player.coins || 0) + 1;
     }
-    
-    try {
-        const redOpp = getCards(opp).filter(c => c && c.target === 'steal');
-        const greenAll = [...getCards(active).filter(c => c && c.target === 'any'), ...getCards(opp).filter(c => c && c.target === 'any')];
-        const blueSelf = getCards(active).filter(c => c && c.target === 'self' && c.color === 'blue');
-        const purpleSelf = getCards(active).filter(c => c && c.target === 'self' && c.color === 'purple');
 
-        redOpp.forEach(c => {
-            if (c && gameState[active] && gameState[opp]) {
-                if (gameState[active].coins >= c.income) {
-                    gameState[active].coins -= c.income;
-                    gameState[opp].coins += c.income;
-                }
-            }
-        });
+    // Бросок кубиков
+    function rollDice() {
+        if (myPlayer !== gameState.turn) return;
         
-        greenAll.forEach(c => {
-            if (c) {
-                const owner = gameState[active].enterprises.includes(c.id) ? active : opp;
-                if (gameState[owner]) gameState[owner].coins += c.income;
-            }
-        });
+        const d1 = Math.floor(Math.random() * 6) + 1;
+        const d2 = Math.floor(Math.random() * 6) + 1;
+        const sum = d1 + d2;
         
-        blueSelf.forEach(c => { if (c && gameState[active]) gameState[active].coins += c.income; });
-        purpleSelf.forEach(c => { if (c && gameState[active]) gameState[active].coins += c.income; });
+        gameState.lastRoll = [d1, d2];
+        resolveIncome(gameState.turn, sum);
         
-        if (isDouble && gameState[active] && gameState[active].landmarks.includes('amusement')) {
-            gameState[active].coins += 5;
-        }
-    } catch (e) {
-        console.log("Ошибка в доходе:", e);
+        gameState.turn = gameState.turn === 1 ? 2 : 1;
+        pushState();
+        updateUI();
     }
-}
-   // Замените функцию rollDice
-function rollDice() {
-    if (myPlayer !== gameState.turn) return;
-    
-    const d1 = Math.floor(Math.random() * 6) + 1;
-    let d2 = 0;
-    
-    // Проверяем наличие вокзала
-    const hasStation = gameState[`p${gameState.turn}`] && 
-                      gameState[`p${gameState.turn}`].landmarks && 
-                      gameState[`p${gameState.turn}`].landmarks.includes('station');
-    
-    if (hasStation) {
-        d2 = Math.floor(Math.random() * 6) + 1;
-    }
-    
-    const sum = d2 ? d1 + d2 : d1;
-    gameState.lastRoll = [d1, d2 || 1];
-    
-    resolveIncome(gameState.turn, sum, d1 === d2);
-    
-    // Смена хода
-    gameState.turn = gameState.turn === 1 ? 2 : 1;
-    
-    // Сохраняем в Firebase
-    pushState();
-    updateUI();
-}
+
     // Подключение к комнате
     function joinRoom() {
-        roomId = roomInput.value.trim();
+        const roomId = roomInput.value.trim();
         if (!roomId) return;
-        statusEl.textContent = '🔄 Подключение...';
+        
+        document.getElementById('status').textContent = '🔄 Подключение...';
         roomRef = database.ref('games/' + roomId);
         
         roomRef.once('value').then(snap => {
             if (!snap.exists()) {
-                // Новая комната, становимся Игроком 1
                 myPlayer = 1;
+                gameState = JSON.parse(JSON.stringify(defaultState));
                 roomRef.set(gameState);
-                statusEl.textContent = '✅ Комната создана. Вы Игрок 1';
+                document.getElementById('status').textContent = '✅ Вы Игрок 1';
             } else {
-                // Существующая комната, становимся Игроком 2
                 myPlayer = 2;
-                statusEl.textContent = '✅ Подключено. Вы Игрок 2';
+                document.getElementById('status').textContent = '✅ Вы Игрок 2';
             }
             
-            // Слушаем изменения
             roomRef.on('value', snap => {
                 if (snap.exists()) {
-                    gameState = snap.val();
-                    marketSupply = {}; // Восстанавливаем лимиты
-                    ENTERPRISES.forEach(c => marketSupply[c.id] = 6);
-                    updateUI();
-                    attachHandlers();
+                    const data = snap.val();
+                    if (data) {
+                        gameState = data;
+                        updateUI();
+                    }
                 }
             });
+        }).catch(e => {
+            console.log('Ошибка подключения:', e);
+            document.getElementById('status').textContent = '❌ Ошибка';
         });
     }
 
     // Сброс игры
     function resetGame() {
-        gameState = {
-            p1: { coins: 3, enterprises: ['wheat','bakery'], landmarks: [] },
-            p2: { coins: 3, enterprises: ['wheat','bakery'], landmarks: [] },
-            turn: 1,
-            diceCount: 1,
-            lastRoll: [1,1],
-            timestamp: Date.now()
-        };
-        ENTERPRISES.forEach(c => marketSupply[c.id] = 6);
-        if (roomRef) roomRef.set(gameState);
+        gameState = JSON.parse(JSON.stringify(defaultState));
+        marketSupply = { wheat: 6, ranch: 6, bakery: 6 };
+        if (roomRef) {
+            roomRef.set(gameState);
+        }
         updateUI();
+        setMessage('Игра сброшена');
     }
 
     // Обработчики кнопок
-    rollBtn.addEventListener('click', rollDice);
     joinBtn.addEventListener('click', joinRoom);
+    rollBtn.addEventListener('click', rollDice);
     resetBtn.addEventListener('click', resetGame);
 
-    // Начальное состояние
+    // Начальная отрисовка
     updateUI();
-    setMessage('Введите название комнаты и нажмите ВОЙТИ');
+    setMessage('Введите комнату и нажмите ВОЙТИ');
 </script>
 </body>
 </html>
