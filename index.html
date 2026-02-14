@@ -42,8 +42,8 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
         
-        /* Панель создания/входа */
-        .connection-panel {
+        /* Панель управления */
+        .control-panel {
             background: rgba(255,255,255,0.1);
             border-radius: 20px;
             padding: 20px;
@@ -51,76 +51,74 @@
             border: 2px solid rgba(255,255,255,0.2);
         }
         
-        .input-row {
-            display: flex;
-            gap: 10px;
+        .input-group {
             margin-bottom: 15px;
-            flex-wrap: wrap;
         }
         
-        .input-row input {
-            flex: 1;
-            min-width: 140px;
+        .input-group input {
+            width: 100%;
             padding: 14px 18px;
             border: none;
             border-radius: 12px;
             font-size: 16px;
             background: white;
             color: #333;
+            margin-bottom: 10px;
         }
         
-        .buttons-row {
-            display: flex;
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
-            flex-wrap: wrap;
+            margin-bottom: 15px;
         }
         
         .btn {
-            padding: 14px 28px;
+            padding: 14px 20px;
             border: none;
             border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             white-space: nowrap;
-            flex: 1;
-            min-width: 140px;
         }
         
-        .btn-primary {
-            background: #54b0f0;
-            color: #02243b;
-            box-shadow: 0 4px 0 #2a8bc9;
-        }
-        
-        .btn-primary:active {
-            transform: translateY(4px);
-            box-shadow: 0 0 0 #2a8bc9;
-        }
-        
-        .btn-success {
+        .btn-create {
             background: #2ecc71;
             color: white;
             box-shadow: 0 4px 0 #27ae60;
         }
         
-        .btn-success:active {
+        .btn-create:active {
             transform: translateY(4px);
             box-shadow: 0 0 0 #27ae60;
         }
         
-        .btn-secondary {
+        .btn-join {
+            background: #54b0f0;
+            color: #02243b;
+            box-shadow: 0 4px 0 #2a8bc9;
+        }
+        
+        .btn-join:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #2a8bc9;
+        }
+        
+        .btn-refresh {
             background: #9b59b6;
             color: white;
             box-shadow: 0 4px 0 #8e44ad;
+            padding: 10px 16px;
+            font-size: 14px;
         }
         
-        .btn-secondary:active {
+        .btn-refresh:active {
             transform: translateY(4px);
             box-shadow: 0 0 0 #8e44ad;
         }
@@ -134,6 +132,14 @@
         .btn-danger:active {
             transform: translateY(4px);
             box-shadow: 0 0 0 #c0392b;
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         
         .status-badge {
@@ -684,18 +690,25 @@
             flex-wrap: wrap;
         }
         
+        .room-id-display {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 1.4rem;
+            color: #54b0f0;
+            margin: 15px 0;
+            border: 2px dashed #54b0f0;
+        }
+        
         /* Адаптивность */
         @media (max-width: 600px) {
             .lobby-header h1 {
                 font-size: 2rem;
             }
             
-            .input-row, .buttons-row {
-                flex-direction: column;
-            }
-            
-            .input-row input, .btn {
-                width: 100%;
+            .buttons-grid {
+                grid-template-columns: 1fr;
             }
             
             .game-board {
@@ -749,9 +762,6 @@
         }
         
         .hidden { display: none !important; }
-        .text-success { color: #2ecc71; }
-        .text-danger { color: #e74c3c; }
-        .text-warning { color: #f39c12; }
     </style>
 </head>
 <body>
@@ -763,26 +773,27 @@
         <p>Стройте город, зарабатывайте монеты, побеждайте!</p>
     </div>
     
-    <div class="connection-panel">
-        <div class="input-row">
+    <div class="control-panel">
+        <div class="input-group">
             <input type="text" id="playerName" placeholder="Ваше имя" maxlength="20" value="Игрок">
-            <input type="text" id="roomId" placeholder="ID комнаты (или оставьте пустым для случайного)" maxlength="20">
+            <input type="text" id="roomId" placeholder="ID комнаты (необязательно)" maxlength="20">
         </div>
         
-        <div class="buttons-row">
-            <button class="btn btn-success" onclick="createRoom()">
+        <!-- КНОПКИ СОЗДАНИЯ И ВХОДА -->
+        <div class="buttons-grid">
+            <button class="btn btn-create" onclick="createRoom()">
                 <span>➕</span> Создать комнату
             </button>
-            <button class="btn btn-primary" onclick="joinRoom()">
+            <button class="btn btn-join" onclick="joinRoom()">
                 <span>🚪</span> Войти в комнату
             </button>
         </div>
         
-        <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div class="status-bar">
             <span class="status-badge disconnected" id="connectionStatus">
                 <span>⚪</span> Отключено
             </span>
-            <button class="btn btn-secondary" onclick="refreshRooms()" style="padding: 10px 20px; font-size: 14px; flex: 0 0 auto;">
+            <button class="btn btn-refresh" onclick="refreshRooms()">
                 <span>🔄</span> Обновить список
             </button>
         </div>
@@ -791,7 +802,7 @@
     <div class="rooms-section">
         <div class="rooms-header">
             <h2>📋 Доступные комнаты</h2>
-            <span style="opacity: 0.7; font-size: 0.9rem;">Нажмите на комнату чтобы присоединиться</span>
+            <span style="opacity: 0.7; font-size: 0.9rem;">Нажмите чтобы присоединиться</span>
         </div>
         
         <div class="rooms-list" id="roomsList">
@@ -848,10 +859,10 @@
                 </div>
                 
                 <div class="action-buttons">
-                    <button class="btn btn-success" id="rollBtn" onclick="rollDice()" style="font-size: 1.2rem; padding: 16px 45px;" disabled>
-                        <span>🎲</span> БРОСИТЬ КУБИКИ
+                    <button class="btn btn-create" id="rollBtn" onclick="rollDice()" style="font-size: 1.2rem; padding: 16px 45px;" disabled>
+                        <span>🎲</span> БРОСИТЬ
                     </button>
-                    <button class="btn btn-primary hidden" id="startBtn" onclick="startGame()" style="font-size: 1.1rem; padding: 16px 35px;">
+                    <button class="btn btn-join hidden" id="startBtn" onclick="startGame()" style="font-size: 1.1rem; padding: 16px 35px;">
                         <span>▶️</span> НАЧАТЬ ИГРУ
                     </button>
                 </div>
@@ -891,7 +902,7 @@
         <h2 id="winnerText">Победитель!</h2>
         <p id="winnerDesc">Поздравляем с постройкой всех достопримечательностей!</p>
         <div class="modal-buttons">
-            <button class="btn btn-primary" onclick="closeModal(); resetGame()">
+            <button class="btn btn-join" onclick="closeModal(); resetGame()">
                 <span>🔄</span> Сыграть ещё
             </button>
             <button class="btn btn-danger" onclick="closeModal(); leaveRoom()">
@@ -906,7 +917,8 @@
     <div class="modal">
         <div class="modal-icon">⏳</div>
         <h2>Ожидание второго игрока</h2>
-        <p>Поделитесь ID комнаты с другом:<br><strong id="waitingRoomId" style="font-size: 1.3rem; color: #54b0f0;"></strong></p>
+        <p>Поделитесь ID комнаты с другом:</p>
+        <div class="room-id-display" id="waitingRoomId"></div>
         <button class="btn btn-danger" onclick="closeWaiting(); leaveRoom()">
             <span>❌</span> Отмена
         </button>
@@ -944,7 +956,6 @@ let socket = null;
 let myPlayer = null;
 let currentRoom = null;
 let gameState = null;
-let reconnectInterval = null;
 
 // ==================== ПОДКЛЮЧЕНИЕ ====================
 function connect() {
@@ -958,16 +969,6 @@ function connect() {
         socket.onopen = () => {
             updateStatus('connected', '🟢 Онлайн');
             refreshRooms();
-            
-            // Переподключаемся к комнате если были в ней
-            if (currentRoom && myPlayer) {
-                const name = document.getElementById('playerName').value.trim() || 'Игрок';
-                socket.send(JSON.stringify({
-                    action: 'join',
-                    room: currentRoom,
-                    name: name
-                }));
-            }
         };
         
         socket.onmessage = (e) => {
@@ -977,17 +978,17 @@ function connect() {
         
         socket.onerror = (e) => {
             console.error('WS Error:', e);
-            updateStatus('error', '🔴 Ошибка соединения');
+            updateStatus('error', '🔴 Ошибка');
         };
         
         socket.onclose = () => {
-            updateStatus('disconnected', '⚪ Отключено — переподключение...');
-            reconnectInterval = setTimeout(connect, 3000);
+            updateStatus('disconnected', '⚪ Переподключение...');
+            setTimeout(connect, 3000);
         };
         
     } catch (err) {
         updateStatus('error', '🔴 Ошибка');
-        reconnectInterval = setTimeout(connect, 5000);
+        setTimeout(connect, 5000);
     }
 }
 
@@ -1012,9 +1013,8 @@ function handleMessage(data) {
             closeWaiting();
             showGameScreen();
             updateGame(data.state);
-            log(`Вы присоединились как Игрок ${myPlayer} (${data.state['p'+myPlayer].name})`);
+            log(`Вы присоединились как Игрок ${myPlayer}`);
             
-            // Показываем ожидание если один игрок
             if (data.state.playerCount < 2) {
                 showWaiting(data.room);
             }
@@ -1022,7 +1022,7 @@ function handleMessage(data) {
             
         case 'playerJoined':
             closeWaiting();
-            log(`👋 ${data.name} присоединился к комнате`);
+            log(`👋 ${data.name} присоединился`);
             updateGame(data.state);
             break;
             
@@ -1037,7 +1037,7 @@ function handleMessage(data) {
             closeWaiting();
             if (myPlayer === 1) {
                 document.getElementById('startBtn').classList.remove('hidden');
-                log('✅ Два игрока в комнате! Нажмите НАЧАТЬ ИГРУ');
+                log('✅ Два игрока! Нажмите НАЧАТЬ ИГРУ');
             }
             break;
             
@@ -1101,6 +1101,7 @@ function joinRoom() {
     
     if (!roomId) {
         alert('Введите ID комнаты или нажмите СОЗДАТЬ КОМНАТУ');
+        document.getElementById('roomId').focus();
         return;
     }
     
@@ -1147,7 +1148,6 @@ function rollDice() {
     const d1 = Math.floor(Math.random() * 6) + 1;
     const d2 = Math.floor(Math.random() * 6) + 1;
     
-    // Анимация
     const die1 = document.getElementById('die1');
     const die2 = document.getElementById('die2');
     die1.classList.add('rolling');
@@ -1223,11 +1223,6 @@ function closeWaiting() {
     document.getElementById('waitingModal').classList.remove('active');
 }
 
-function closeWaitingModal() {
-    closeWaiting();
-    leaveRoom();
-}
-
 function renderRooms(rooms) {
     const container = document.getElementById('roomsList');
     
@@ -1249,7 +1244,7 @@ function renderRooms(rooms) {
             <div class="room-card ${isFull ? 'full' : ''}" onclick="${isFull ? '' : `joinExistingRoom('${r.id}')`}">
                 <div class="room-info">
                     <h3>🚪 ${r.id}</h3>
-                    <p>${r.playerNames?.filter(n => n).join(' vs ') || 'Ожидание игроков...'}</p>
+                    <p>${r.playerNames?.filter(n => n).join(' vs ') || 'Ожидание...'}</p>
                 </div>
                 <div class="room-status">
                     <span class="status-label ${statusClass}">${r.status}</span>
@@ -1266,39 +1261,31 @@ function renderRooms(rooms) {
 function updateGame(state) {
     if (!state) return;
     
-    // Имена и аватары
     document.getElementById('name1').textContent = state.p1.name || 'Игрок 1';
     document.getElementById('name2').textContent = state.p2.name || 'Игрок 2';
     
-    // Монеты
     document.getElementById('coins1').textContent = state.p1.coins;
     document.getElementById('coins2').textContent = state.p2.coins;
     
-    // Достопримечательности
     renderLandmarks(1, state.p1.landmarks, state.p1.coins);
     renderLandmarks(2, state.p2.landmarks, state.p2.coins);
     
-    // Предприятия
     renderEnterprises(1, state.p1.enterprises);
     renderEnterprises(2, state.p2.enterprises);
     
-    // Рынок
     renderMarket(state);
     
-    // Кубики
     if (state.lastRoll) {
         document.getElementById('die1').textContent = DICE_FACES[state.lastRoll[0]-1];
         document.getElementById('die2').textContent = DICE_FACES[state.lastRoll[1]-1];
         document.getElementById('diceSum').textContent = state.lastRoll[0] + state.lastRoll[1];
     }
     
-    // Ход и активность
     const indicator = document.getElementById('turnIndicator');
     const rollBtn = document.getElementById('rollBtn');
     const panel1 = document.getElementById('panel1');
     const panel2 = document.getElementById('panel2');
     
-    // Сброс активности
     panel1.classList.remove('active');
     panel2.classList.remove('active');
     
@@ -1314,7 +1301,6 @@ function updateGame(state) {
         indicator.className = 'turn-indicator ' + (isMyTurn ? 'my-turn' : '');
         rollBtn.disabled = !isMyTurn;
         
-        // Подсветка активного игрока
         if (state.turn === 1) panel1.classList.add('active');
         else panel2.classList.add('active');
     }
@@ -1347,7 +1333,6 @@ function renderEnterprises(playerNum, enterprises) {
         return;
     }
     
-    // Считаем количество каждой карты
     const counts = {};
     enterprises.forEach(id => {
         counts[id] = (counts[id] || 0) + 1;
@@ -1409,12 +1394,10 @@ function closeModal() {
 connect();
 refreshRooms();
 
-// Автообновление списка комнат
 setInterval(() => {
     if (!currentRoom) refreshRooms();
 }, 8000);
 
-// Пинг для поддержания соединения
 setInterval(() => {
     if (socket?.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify({ action: 'ping' }));
